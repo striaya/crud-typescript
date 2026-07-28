@@ -1,5 +1,7 @@
 <?php
-
+use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/products', function () {
+    return Inertia::render('products/index');
+})->name('products.index');
