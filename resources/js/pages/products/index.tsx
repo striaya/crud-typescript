@@ -5,6 +5,7 @@ import type { Product } from '@/types/product';
 export default function Products() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [edit, setEdit] = useState<number | null>(null);
 
     const [form, setForm] = useState({
         nama: '',
@@ -42,7 +43,17 @@ export default function Products() {
         e.preventDefault();
 
         try {
-            await api.post('/products', {
+
+            if (edit !== null) {
+                await api.put(`/products/${edit}` , {
+                    nama: form.nama,
+                    harga: Number(form.harga),
+                    stok: Number(form.stok),
+                    deskripsi: form.deskripsi,
+                });
+                alert('Product berhasil diupdate');
+            }else {
+                     await api.post('/products', {
                 nama: form.nama,
                 harga: Number(form.harga),
                 stok: Number(form.stok),
@@ -51,12 +62,19 @@ export default function Products() {
 
             alert('Product berhasil ditambahkan!');
 
+            }
+       
             setForm({
                 nama: '',
                 harga: '',
                 stok: '',
                 deskripsi: '',
             });
+
+            setEdit(null);
+
+            const response = await api.get('/products');
+            setProducts(response.data.data);
 
             window.location.reload();
         } catch (error) {
@@ -78,9 +96,17 @@ export default function Products() {
         }
     };
 
-    const handleUpdate = async (id: number) => {
-        
-    }
+    const handleEdit = (product: Product) => {
+        setEdit(product.id);
+
+        setForm({
+            nama: product.nama,
+            harga: String(product.harga),
+            stok: String(product.stok),
+            deskripsi: product.deskripsi,
+        });
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -139,7 +165,7 @@ export default function Products() {
                     type="submit"
                     className="cursor-pointer rounded bg-blue-500 px-4 py-2 text-white"
                 >
-                    Tambah Product
+                    {edit ? 'Update Product' : 'Tambah Product'}
                 </button>
             </form>
 
@@ -161,6 +187,12 @@ export default function Products() {
                             <p>
                                 Deskripsi: {product.deskripsi}
                             </p>
+                            <button
+                            onClick={() => handleEdit(product)}
+                            className='mr-3 mt-3 rounded bg-yellow-500 px-6 text-white hover:bg-yellow-600'
+                            >
+                                Edit
+                            </button>
                             <button
                                 onClick={() => handleDelete(product.id)}
                                 className='mt-3 rounded bg-red-500 px-4 text-white hover:bg-red-600'
