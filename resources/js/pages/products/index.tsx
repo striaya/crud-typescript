@@ -41,8 +41,6 @@ export default function Products() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        console.log ("Berhasil");
-
         try {
             await api.post('/products', {
                 nama: form.nama,
@@ -66,6 +64,23 @@ export default function Products() {
         }
     };
 
+    const handleDelete = async (id: number) => {
+        if(!confirm("Ingin menghapus product ini?")) {
+            return;
+        }
+
+        try {
+            await api.delete(`/products/${id}`);
+            alert('Product berhasil dihapus');
+            setProducts(products.filter((product) => product.id !== id));
+        }catch (error) {
+            console.error('Gagal menghapus product:', error);
+        }
+    };
+
+    const handleUpdate = async (id: number) => {
+        
+    }
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -135,7 +150,7 @@ export default function Products() {
                     {products.map((product) => (
                         <div
                             key={product.id}
-                            className="mb-4 border p-4"
+                            className="mb-4 border p-4 shadow"
                         >
                             <h2 className="text-xl font-bold">
                                 {product.nama}
@@ -146,6 +161,12 @@ export default function Products() {
                             <p>
                                 Deskripsi: {product.deskripsi}
                             </p>
+                            <button
+                                onClick={() => handleDelete(product.id)}
+                                className='mt-3 rounded bg-red-500 px-4 text-white hover:bg-red-600'
+                            >
+                                Delete
+                            </button>
                         </div>
                     ))}
                 </div>
